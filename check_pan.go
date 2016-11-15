@@ -1,14 +1,30 @@
 package main
 
 import (
+		"crypto/tls"
+		"encoding/xml"
 		"flag"
 		"fmt"
+//		"io"
 		"net"
+		"net/http"
 		"os"
 )
 
 var hostFlag = flag.String("h", "", "Host to check. (required)")
 var tokenFlag = flag.String("t", "", "Authorization Token to use. (required)")
+var host = ""
+
+type Admin struct {
+		
+		Entry string `xml:"entry"`	
+		Name string `xml:"admin"`
+		From string `xml:"from"`
+		Type string `xml:"type"`
+		Start string `xml:"start-from"`
+		Idle string `xml:"idle-for"`
+}
+
 
 
 
@@ -35,12 +51,43 @@ func main() {
         	os.Exit(1)
     	}
     	fmt.Println("Hostmame:", *hostFlag, "Address:", addr.String())
+    	host = addr.String()
     } else {
     	fmt.Println("Host Address:", ipaddr.String())
+    	host = ipaddr.String()
+
     }
 
 	fmt.Println(*tokenFlag)
-		
+	
+	// Setup insecure transport (we know what we are connecting to)
+
+	tr := &http.Transport{
+        TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+    }
+    client := &http.Client{Transport: tr}
+    // show admins
+    const uri = "/api/?type=op&cmd=<show><admins><%2Fadmins><%2Fshow>"
+    response, err := client.Get("https://"+host+uri+"&key="+*tokenFlag)
+    if err != nil {
+        fmt.Println(err)
+    }	else {
+    	defer response.Body.Close()
+//    	_, err := io.Copy(os.Stdout, response.Body)
+//    	if err != nil {
+//        fmt.Println(err)
+    	d := xml.NewDecoder(response.Body)
+    	var admins Admin
+    	if err := d.Decode(&admins); err != nil {
+    	// Handle error
+    	return
+		}
+		// No error, use doc:
+		fmt.Printf("%+v", admins)
+    	}
+    
+	//fmt.Println(response)
+
 }	
 
 
