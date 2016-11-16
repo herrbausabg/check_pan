@@ -15,14 +15,23 @@ var hostFlag = flag.String("h", "", "Host to check. (required)")
 var tokenFlag = flag.String("t", "", "Authorization Token to use. (required)")
 var host = ""
 
-type Admin struct {
-        
-        Entry string `xml:"entry"`  
+
+type Item struct {
         Name string `xml:"admin"`
         From string `xml:"from"`
         Type string `xml:"type"`
         Start string `xml:"start-from"`
         Idle string `xml:"idle-for"`
+}
+
+type Response struct {
+    XMLName xml.Name `xml:"response"`
+    Items Items `xml:"result"`
+}
+
+type Items struct {
+    XMLName xml.Name `xml:"result"`
+    Itemlist []Item `xml:"admins>entry"`
 }
 
 
@@ -75,22 +84,23 @@ func main() {
         defer response.Body.Close()
 //      _, err := io.Copy(os.Stdout, response.Body)
 //      if err != nil {
-//        fmt.Println(err)
+//        fmt.Println(err) }
         d := xml.NewDecoder(response.Body)
-        var admins Admin
-        if err := d.Decode(&admins); err != nil {
+        var resp Response
+        if err := d.Decode(&resp); err != nil {
         // Handle error
-        return
-        }
-        // No error, use doc:
-        fmt.Printf("%+v", admins)
+        fmt.Println("Could not get result", err.Error())
+            os.Exit(1)    
+        } else {
+        // No error
+        fmt.Printf("%+v", resp)
         }
     
-    //fmt.Println(response)
+//    fmt.Println(response)
 
 }   
 
-
+}
 
 
     
