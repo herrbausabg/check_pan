@@ -1,14 +1,14 @@
 package main
 
 import (
-		"crypto/tls"
-		"encoding/xml"
-		"flag"
-		"fmt"
-//		"io"
-		"net"
-		"net/http"
-		"os"
+        "crypto/tls"
+        "encoding/xml"
+        "flag"
+        "fmt"
+//      "io"
+        "net"
+        "net/http"
+        "os"
 )
 
 var hostFlag = flag.String("h", "", "Host to check. (required)")
@@ -16,24 +16,24 @@ var tokenFlag = flag.String("t", "", "Authorization Token to use. (required)")
 var host = ""
 
 type Admin struct {
-		
-		Entry string `xml:"entry"`	
-		Name string `xml:"admin"`
-		From string `xml:"from"`
-		Type string `xml:"type"`
-		Start string `xml:"start-from"`
-		Idle string `xml:"idle-for"`
+        
+        Entry string `xml:"entry"`  
+        Name string `xml:"admin"`
+        From string `xml:"from"`
+        Type string `xml:"type"`
+        Start string `xml:"start-from"`
+        Idle string `xml:"idle-for"`
 }
 
 
 
 
 func main() {
-	required := []string{"h", "t"}
-	flag.Parse()
-	// Host and Token are required, build a map for all flags and test against required
-	seen := make(map[string]bool)
-	flag.Visit(func(f *flag.Flag) { seen[f.Name] = true })
+    required := []string{"h", "t"}
+    flag.Parse()
+    // Host and Token are required, build a map for all flags and test against required
+    seen := make(map[string]bool)
+    flag.Visit(func(f *flag.Flag) { seen[f.Name] = true })
     for _, req := range required {
         if !seen[req] {
             fmt.Fprintf(os.Stderr, "missing required -%s argument/flag, use -help for more info\n", req)
@@ -41,28 +41,28 @@ func main() {
         }
     }
 
-//	fmt.Println(*hostFlag)
+//  fmt.Println(*hostFlag)
 // Errorhandling Hostname / IP Address
     ipaddr := net.ParseIP(*hostFlag)
     if ipaddr == nil {
-    	addr, err := net.ResolveIPAddr("ip", *hostFlag)
-    	if err != nil {
-    		fmt.Println("Resolution error or invalid address", err.Error())
-        	os.Exit(1)
-    	}
-    	fmt.Println("Hostmame:", *hostFlag, "Address:", addr.String())
-    	host = addr.String()
+        addr, err := net.ResolveIPAddr("ip", *hostFlag)
+        if err != nil {
+            fmt.Println("Resolution error or invalid address", err.Error())
+            os.Exit(1)
+        }
+        fmt.Println("Hostmame:", *hostFlag, "Address:", addr.String())
+        host = addr.String()
     } else {
-    	fmt.Println("Host Address:", ipaddr.String())
-    	host = ipaddr.String()
+        fmt.Println("Host Address:", ipaddr.String())
+        host = ipaddr.String()
 
     }
 
-	fmt.Println(*tokenFlag)
-	
-	// Setup insecure transport (we know what we are connecting to)
+    fmt.Println(*tokenFlag)
+    
+    // Setup insecure transport (we know what we are connecting to)
 
-	tr := &http.Transport{
+    tr := &http.Transport{
         TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
     }
     client := &http.Client{Transport: tr}
@@ -71,26 +71,26 @@ func main() {
     response, err := client.Get("https://"+host+uri+"&key="+*tokenFlag)
     if err != nil {
         fmt.Println(err)
-    }	else {
-    	defer response.Body.Close()
-//    	_, err := io.Copy(os.Stdout, response.Body)
-//    	if err != nil {
+    }   else {
+        defer response.Body.Close()
+//      _, err := io.Copy(os.Stdout, response.Body)
+//      if err != nil {
 //        fmt.Println(err)
-    	d := xml.NewDecoder(response.Body)
-    	var admins Admin
-    	if err := d.Decode(&admins); err != nil {
-    	// Handle error
-    	return
-		}
-		// No error, use doc:
-		fmt.Printf("%+v", admins)
-    	}
+        d := xml.NewDecoder(response.Body)
+        var admins Admin
+        if err := d.Decode(&admins); err != nil {
+        // Handle error
+        return
+        }
+        // No error, use doc:
+        fmt.Printf("%+v", admins)
+        }
     
-	//fmt.Println(response)
+    //fmt.Println(response)
 
-}	
-
-
+}   
 
 
-	
+
+
+    
