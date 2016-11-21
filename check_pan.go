@@ -16,22 +16,22 @@ var tokenFlag = flag.String("t", "", "Authorization Token to use. (required)")
 var host = ""
 
 
-type Item struct {
-        Name string `xml:"admin"`
+type Entry struct {
+        Admin string `xml:"admin"`
         From string `xml:"from"`
         Type string `xml:"type"`
         Start string `xml:"start-from"`
         Idle string `xml:"idle-for"`
 }
 
-type Items struct {
+type Entries struct {
     XMLName xml.Name `xml:"result"`
-    Itemlist []Item `xml:"admins>entry"`
+    Entrylist []Entry `xml:"admins>entry"`
 }
 
 type Response struct {
     XMLName xml.Name `xml:"response"`
-    Items Items `xml:"result"`
+    Entries Entries `xml:"result"`
 }
 
 
@@ -95,12 +95,24 @@ func main() {
             os.Exit(1)    
         } else {
         // No error
-        fmt.Printf("%+v", resp)
+        
+        for _, v := range resp.Entries.Entrylist {
+//        fmt.Printf("%+v",v )
+            fmt.Println("Admin:", v.Admin, " logged in from the: ", v.Type, "with IP:", v.From, " at: ", v.Start, " and idles for: ", v.Idle)
+            }
+
+
+
+
+
         }
+
+//    fmt.Printf("%+v", resp)
+    }
     
 //    fmt.Println(response)
 
-}   
+    
 
 }
 
