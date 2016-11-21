@@ -1,14 +1,15 @@
 package main
 
 import (
-        "crypto/tls"
-        "encoding/xml"
+//        "crypto/tls"
+//        "encoding/xml"
         "flag"
         "fmt"
 //      "io"
         "net"
-        "net/http"
+//        "net/http"
         "os"
+        "./apicalls"
 )
 
 var hostFlag = flag.String("h", "", "Host to check. (required)")
@@ -16,23 +17,6 @@ var tokenFlag = flag.String("t", "", "Authorization Token to use. (required)")
 var host = ""
 
 
-type Entry struct {
-        Admin string `xml:"admin"`
-        From string `xml:"from"`
-        Type string `xml:"type"`
-        Start string `xml:"start-from"`
-        Idle string `xml:"idle-for"`
-}
-
-type Entries struct {
-    XMLName xml.Name `xml:"result"`
-    Entrylist []Entry `xml:"admins>entry"`
-}
-
-type Response struct {
-    XMLName xml.Name `xml:"response"`
-    Entries Entries `xml:"result"`
-}
 
 
 
@@ -42,7 +26,6 @@ type Response struct {
 func main() {
     required := []string{"h", "t"}
     flag.Parse()
-    // Host and Token are required, build a map for all flags and test against required
     seen := make(map[string]bool)
     flag.Visit(func(f *flag.Flag) { seen[f.Name] = true })
     for _, req := range required {
@@ -52,7 +35,6 @@ func main() {
         }
     }
 
-//  fmt.Println(*hostFlag)
 // Errorhandling Hostname / IP Address
     ipaddr := net.ParseIP(*hostFlag)
     if ipaddr == nil {
@@ -69,49 +51,10 @@ func main() {
 
     }
 
-    fmt.Println(*tokenFlag)
     
-    // Setup insecure transport (we know what we are connecting to)
 
-    tr := &http.Transport{
-        TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-    }
-    client := &http.Client{Transport: tr}
-    // show admins
-    const uri = "/api/?type=op&cmd=<show><admins><%2Fadmins><%2Fshow>"
-    response, err := client.Get("https://"+host+uri+"&key="+*tokenFlag)
-    if err != nil {
-        fmt.Println(err)
-    }   else {
-        defer response.Body.Close()
-//      _, err := io.Copy(os.Stdout, response.Body)
-//      if err != nil {
-//        fmt.Println(err) }
-        d := xml.NewDecoder(response.Body)
-        var resp Response
-        if err := d.Decode(&resp); err != nil {
-        // Handle error
-        fmt.Println("Could not get result", err.Error())
-            os.Exit(1)    
-        } else {
-        // No error
-        
-        for _, v := range resp.Entries.Entrylist {
-//        fmt.Printf("%+v",v )
-            fmt.Println("Admin:", v.Admin, " logged in from the: ", v.Type, "with IP:", v.From, " at: ", v.Start, " and idles for: ", v.Idle)
-            }
-
-
-
-
-
-        }
-
-//    fmt.Printf("%+v", resp)
-    }
-    
-//    fmt.Println(response)
-
+   
+fmt.Println(apicalls.GetAdmins(host, *tokenFlag))
     
 
 }
