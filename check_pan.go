@@ -24,15 +24,17 @@ type Item struct {
         Idle string `xml:"idle-for"`
 }
 
+type Items struct {
+    XMLName xml.Name `xml:"result"`
+    Itemlist []Item `xml:"admins>entry"`
+}
+
 type Response struct {
     XMLName xml.Name `xml:"response"`
     Items Items `xml:"result"`
 }
 
-type Items struct {
-    XMLName xml.Name `xml:"result"`
-    Itemlist []Item `xml:"admins>entry"`
-}
+
 
 
 
