@@ -3,7 +3,9 @@ package apicalls
 import (
         "crypto/tls"
         "encoding/xml"
+        "fmt"
         "net/http"
+        "os"
 )
 
 
@@ -22,6 +24,18 @@ func CallRestapi(url string, target interface{}) error {
 		return err
 	}
 	defer r.Body.Close()
+
+
+	if r.StatusCode != 200 {
+		fmt.Println("Targetsystem returns error in HTTP Response:", r.Status)
+		os.Exit(2)
+	}
+
+	if v, ok :=  r.Header["Status"]; ok {
+		fmt.Println("Targetsystem returns error in HTTP Response:", v)
+		os.Exit(2)
+	}
+
 
 	return xml.NewDecoder(r.Body).Decode(target)
 } 
