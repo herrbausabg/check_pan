@@ -1,20 +1,16 @@
 package main
 
 import (
-//        "crypto/tls"
-//        "encoding/xml"
         "flag"
         "fmt"
-//      "io"
         "net"
-//        "net/http"
         "os"
         "./apicalls"
 )
 
 var hostFlag = flag.String("h", "", "Host to check. (required)")
 var tokenFlag = flag.String("t", "", "Authorization Token to use. (required)")
-var host = ""
+var commandFlag = flag.String("c", "", "Command to check. (required). Implemented:\n\tadmin - show admins\n\tarp - show arp all")
 
 
 
@@ -24,14 +20,15 @@ var host = ""
 
 
 func main() {
-    required := []string{"h", "t"}
+    required := []string{"h", "t", "c"}
+    host := ""
     flag.Parse()
     seen := make(map[string]bool)
     flag.Visit(func(f *flag.Flag) { seen[f.Name] = true })
     for _, req := range required {
         if !seen[req] {
-            fmt.Fprintf(os.Stderr, "missing required -%s argument/flag, use -help for more info\n", req)
-            os.Exit(2) 
+            fmt.Fprintf(os.Stderr, "Error: missing required -%s argument/flag, use -help for more info\n", req)
+            os.Exit(1) 
         }
     }
 
@@ -41,21 +38,30 @@ func main() {
         addr, err := net.ResolveIPAddr("ip", *hostFlag)
         if err != nil {
             fmt.Println("Resolution error or invalid address", err.Error())
-            os.Exit(1)
+            os.Exit(2)
         }
-        fmt.Println("Hostmame:", *hostFlag, "Address:", addr.String())
+//        fmt.Println("Hostmame:", *hostFlag, "Address:", addr.String())
         host = addr.String()
     } else {
-        fmt.Println("Host Address:", ipaddr.String())
+//        fmt.Println("Host Address:", ipaddr.String())
         host = ipaddr.String()
 
     }
 
     
 
+fmt.Println()
+
+switch *commandFlag {
+    case "admin": fmt.Println(apicalls.GetAdmins(host, *tokenFlag))
+    case "arp": fmt.Println(apicalls.GetArps(host, *tokenFlag)) 
+    default: { fmt.Fprintf(os.Stderr,"Error: Unrecognized command with flag -c, use -help for more info\n")
+               os.Exit(1)
+             }  
+}
+
+
    
-fmt.Println(apicalls.GetAdmins(host, *tokenFlag))
-    
 
 }
 
