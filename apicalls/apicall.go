@@ -25,6 +25,12 @@ func CallRestapi(url string, target interface{}) error {
 	}
 	defer r.Body.Close()
 
+
+	if r.StatusCode != 200 {
+		fmt.Println("Targetsystem returns error in HTTP Response:", r.Status)
+		os.Exit(2)
+	}
+
 	if v, ok :=  r.Header["Status"]; ok {
 		fmt.Println("Targetsystem returns error in HTTP Response:", v)
 		os.Exit(2)
