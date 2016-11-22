@@ -10,7 +10,7 @@ import (
 
 var hostFlag = flag.String("h", "", "Host to check. (required)")
 var tokenFlag = flag.String("t", "", "Authorization Token to use. (required)")
-var commandFlag = flag.String("c", "", "Command to check. (required). Implemented:\n\tadmin - show admins\n\tarp - show arp all")
+var commandFlag = flag.String("c", "", "Command to check. (required). Implemented:\n\tadmin - show admins\n\tarp - show arp all\n\tcert - show certificates")
 
 
 
@@ -55,6 +55,7 @@ fmt.Println()
 switch *commandFlag {
     case "admin": fmt.Println(apicalls.GetAdmins(host, *tokenFlag))
     case "arp": fmt.Println(apicalls.GetArps(host, *tokenFlag)) 
+    case "cert": fmt.Println(apicalls.GetCerts(host, *tokenFlag))
     default: { fmt.Fprintf(os.Stderr,"Error: Unrecognized command with flag -c, use -help for more info\n")
                os.Exit(1)
              }  
