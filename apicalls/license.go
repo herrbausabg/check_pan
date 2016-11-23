@@ -54,12 +54,19 @@ resp := new(Response)
     case 1: {                
 // Setup Icinga Output
             short := "January 2, 2006"
+
+            
+
             for _, v := range resp.Entries.Entrylist {
                 t, _ := time.Parse(short, v.Expires)
-                fmt.Println(t, v.Expires)
+                if (time.Now().Sub(t).Hours() >= 0){
+                fmt.Printf("%s license expired %.1f hours ago\n", v.Feature, time.Now().Sub(t).Hours())
+                        } else {
+                fmt.Printf("%s license expires in %.1f hours\n", v.Feature, time.Now().Sub(t).Hours()*(-1))    
+                    }        
 
                 }
-            }
+            }    
     default: {
             panic("No valid outputformat given")
             }        
