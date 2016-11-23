@@ -5,7 +5,7 @@ import (
         "strings"
 )
 
-func GetCerts(host string, token string) string {
+func GetCerts(host string, token string, output int) string {
 
 // definition of the xml struct
 

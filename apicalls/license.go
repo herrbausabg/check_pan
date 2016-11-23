@@ -2,10 +2,12 @@ package apicalls
 
 import (
         "encoding/xml"
+        "fmt"
         "strings"
+        "time"
 )
 
-func GetLics(host string, token string) string {
+func GetLics(host string, token string, output int) string {
 
 // definition of the xml struct
 
@@ -42,10 +44,27 @@ resp := new(Response)
     url = strings.Join(s,"")
 
     CallRestapi(url, resp)
-        
-        for _, v := range resp.Entries.Entrylist {
+
+    switch output {
+    case 0: {            
+       for _, v := range resp.Entries.Entrylist {
             result = strings.Join([]string{result,"Feature: ",v.Feature," Description: ",v.Desc," issued: ",v.Issued, " expires: ",v.Expires," and is expired: ",v.Expired,".\n"},"")
+                }
             }
+    case 1: {                
+// Setup Icinga Output
+            short := "January 2, 2006"
+            for _, v := range resp.Entries.Entrylist {
+                t, _ := time.Parse(short, v.Expires)
+                fmt.Println(t, v.Expires)
+
+                }
+            }
+    default: {
+            panic("No valid outputformat given")
+            }        
+
+    }        
 
 return result    
 }

@@ -5,7 +5,7 @@ import (
         "strings"
 )
 
-func GetArps(host string, token string) string {
+func GetArps(host string, token string, output int) string {
 
 // definition of the xml struct
 
