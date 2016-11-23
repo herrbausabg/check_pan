@@ -28,7 +28,7 @@ func main() {
     for _, req := range required {
         if !seen[req] {
             fmt.Fprintf(os.Stderr, "Error: missing required -%s argument/flag, use -help for more info\n", req)
-            os.Exit(1) 
+            os.Exit(3) 
         }
     }
 
@@ -38,7 +38,7 @@ func main() {
         addr, err := net.ResolveIPAddr("ip", *hostFlag)
         if err != nil {
             fmt.Println("Resolution error or invalid address", err.Error())
-            os.Exit(2)
+            os.Exit(3)
         }
 //        fmt.Println("Hostmame:", *hostFlag, "Address:", addr.String())
         host = addr.String()
@@ -56,9 +56,9 @@ switch *commandFlag {
     case "admin": fmt.Println(apicalls.GetAdmins(host, *tokenFlag, *outputFlag))
     case "arp": fmt.Println(apicalls.GetArps(host, *tokenFlag, *outputFlag)) 
     case "cert": fmt.Println(apicalls.GetCerts(host, *tokenFlag, *outputFlag))
-    case "license": fmt.Println(apicalls.GetLics(host, *tokenFlag, *outputFlag))
+    case "license": os.Exit(apicalls.GetLics(host, *tokenFlag, *outputFlag))
     default: { fmt.Fprintf(os.Stderr,"Error: Unrecognized command with flag -c, use -help for more info\n")
-               os.Exit(1)
+               os.Exit(3)
              }  
 }
 
