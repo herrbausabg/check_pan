@@ -53,6 +53,8 @@ resp := new(Response)
        for _, v := range resp.Entries.Entrylist {
             result = strings.Join([]string{result,"Feature: ",v.Feature," Description: ",v.Desc," issued: ",v.Issued, " expires: ",v.Expires," and is expired: ",v.Expired,".\n"},"")
                 }
+            fmt.Println(result)
+            exitCode = 0    
             }
     case 1: {                
 // Setup Icinga Output
