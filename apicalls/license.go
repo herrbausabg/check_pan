@@ -7,7 +7,7 @@ import (
         "time"
 )
 
-func GetLics(host string, token string, output int) string {
+func GetLics(host string, token string, output int) int{
 
 // definition of the xml struct
 
@@ -36,6 +36,9 @@ const uri = "/api/?type=op&cmd=<request><license><info><%2Finfo><%2Flicense><%2F
 
 var result = ""
 var url string
+var critical = false
+var warning = false
+var exitCode = 0
 resp := new(Response)
 
 
@@ -50,20 +53,35 @@ resp := new(Response)
        for _, v := range resp.Entries.Entrylist {
             result = strings.Join([]string{result,"Feature: ",v.Feature," Description: ",v.Desc," issued: ",v.Issued, " expires: ",v.Expires," and is expired: ",v.Expired,".\n"},"")
                 }
+            fmt.Println(result)
+            exitCode = 0    
             }
     case 1: {                
 // Setup Icinga Output
             short := "January 2, 2006"
 
-            
+
 
             for _, v := range resp.Entries.Entrylist {
                 t, _ := time.Parse(short, v.Expires)
                 if (time.Now().Sub(t).Hours() >= 0){
-                fmt.Printf("%s license expired %.1f hours ago\n", v.Feature, time.Now().Sub(t).Hours())
+                defer fmt.Printf("%s license expired %.1f hours ago\n", v.Feature, time.Now().Sub(t).Hours())
+                critical = true
                         } else {
-                fmt.Printf("%s license expires in %.1f hours\n", v.Feature, time.Now().Sub(t).Hours()*(-1))    
-                    }        
+                defer fmt.Printf("%s license expires in %.1f hours\n", v.Feature, time.Now().Sub(t).Hours()*(-1))    
+                if (time.Now().Sub(t).Hours() > 168) {critical = true}
+                if (time.Now().Sub(t).Hours() > 672) {warning = true}
+                        }        
+                    }
+
+                if critical {fmt.Println("LICENSE CRITICAL ||")
+                            exitCode = 2
+                    } else { 
+                            if warning {fmt.Println("LICENSE WARNING ||")
+                                        exitCode = 1
+                           } else { fmt.Println("LICENSE OK ||")
+                                        exitCode = 0}
+
 
                 }
             }    
@@ -73,7 +91,7 @@ resp := new(Response)
 
     }        
 
-return result    
+return exitCode   
 }
 
 
