@@ -63,17 +63,20 @@ resp := new(Response)
 
 
             for _, v := range resp.Entries.Entrylist {
-                t, _ := time.Parse(short, v.Expires)
-                if (time.Now().Sub(t).Hours() >= 0){
-                defer fmt.Printf("%s license expired %.1f hours ago\n", v.Feature, time.Now().Sub(t).Hours())
-                critical = true
+                if (v.Expires == "Never") {
+                    defer fmt.Printf("%s license expires never\n", v.Feature)
+                    } else {
+                    t, _ := time.Parse(short, v.Expires)
+                    if (time.Now().Sub(t).Hours() >= 0){
+                    defer fmt.Printf("%s license expired %.1f hours ago\n", v.Feature, time.Now().Sub(t).Hours())
+                    critical = true
                         } else {
-                defer fmt.Printf("%s license expires in %.1f hours\n", v.Feature, time.Now().Sub(t).Hours()*(-1))    
-                if (time.Now().Sub(t).Hours() > 168) {critical = true}
-                if (time.Now().Sub(t).Hours() > 672) {warning = true}
-                        }        
-                    }
-
+                    defer fmt.Printf("%s license expires in %.1f hours\n", v.Feature, time.Now().Sub(t).Hours()*(-1))    
+                    if (time.Now().Sub(t).Hours() > 168) {critical = true}
+                    if (time.Now().Sub(t).Hours() > 672) {warning = true}
+                            }        
+                        }
+                    }        
                 if critical {fmt.Println("LICENSE CRITICAL ||")
                             exitCode = 2
                     } else { 
